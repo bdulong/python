@@ -1,4 +1,5 @@
 from random import randint
+
 class Attack:
   def __init__(self,name,damage,crit,miss):
     self.name = name
@@ -115,6 +116,27 @@ forest = Location("Forêt", [monster("Loup", [Attack("Morsure", 1, 1, 1)], 1, 10
 castle = Location("Château", [monster("Garde", [Attack("Coup d'épée", 5, 5, 5)], 5, 20, None)], [Weapon("Épée", Attack("Coup d'épée", 5, 20, 0))])
 
 Pl = PlayerRPG("Warrior")
-M1 = monster("Gobelin",[Attack("Morsure",1,1,1)],1,10,None)
 
-Fight(Pl,M1)
+def jeu(Player, locations):
+  while Player.hp > 0:
+    # Choisir une location au hasard
+    location_index = randint(0, len(locations) - 1)
+    location = locations[location_index]
+
+    # Déplacer le joueur vers la nouvelle location
+    Player.move(location)
+
+    # Si la location a des monstres, lancer un combat
+    if location.monsters:
+      monster_index = randint(0, len(location.monsters) - 1)
+      monster = location.monsters[monster_index]
+      print(f"Un {monster.name} vous attaque !")
+      Fight(Player, monster)
+
+    # Si le joueur a survécu au combat, continuer le jeu
+    if Player.hp > 0:
+      print("Vous avez survécu au combat. Continuons le jeu...")
+    else:
+      print("Vous êtes mort. Le jeu est terminé.")
+
+jeu(Pl,[forest, castle])

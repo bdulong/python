@@ -69,12 +69,12 @@ class Location:
 class Forest(Location):
   def __init__(self):
     super().__init__("Forêt")
-    self.add_monster(Monster("Loup", [Attack("Morsure", 1, 1, 1)], 1, 10, None))
+    self.add_monster(monster("Loup", [Attack("Morsure", 1, 1, 1)], 1, 10, None))
 
 class Castle(Location):
   def __init__(self):
     super().__init__("Château")
-    self.add_monster(Monster("Garde", [Attack("Coup d'épée", 5, 5, 5)], 5, 20, None))
+    self.add_monster(monster("Garde", [Attack("Coup d'épée", 5, 5, 5)], 5, 20, None))
     self.add_item(Weapon("Épée", Attack("Coup d'épée", 5, 20, 0)))
 
 class House(Location):
@@ -128,11 +128,10 @@ class PlayerRPG(Entity):
     self.location = new_location
     print(f"Vous vous déplacez vers {new_location.name}.")
 
-class Monster(Entity) :
+class monster(Entity) :
   def __init__(self, name, atks, Def, hp, loot):
     super().__init__(name,atks,Def,hp)
     self.loot = loot
-    self.is_alive = True  # Ajoutez cet attribut
 
   def attack(self):
     r = randint(0,len(self.atks)-1)
@@ -150,9 +149,10 @@ def Fight(Player,Monster):
 
     Player.hp -= Monster.attack()
 
+  #Réinitialise la vie du monstre après le combat
   if Monster.hp <= 0:
     print(f"Le {Monster.name} est mort.")
-    Monster.hp = Monster.Def  # Restaurez les points de vie du monstre à leur valeur initiale
+    Monster.hp = 25
 
 def jeu(Player):
   forest = Forest()
@@ -169,9 +169,6 @@ def jeu(Player):
       monster = location.monsters[monster_index]
       print(f"Un {monster.name} vous attaque !")
       Fight(Player, monster)
-      if monster.hp <= 0:
-        # Créez une nouvelle instance du monstre
-        location.monsters[monster_index] = Monster(monster.name, monster.atks, monster.Def, monster.Def, monster.loot)
     elif location.items:
       item_index = randint(0, len(location.items) - 1)
       item = location.items[item_index]

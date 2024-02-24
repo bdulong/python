@@ -55,10 +55,35 @@ class Entity():
     pass
 
 class Location:
-  def __init__(self, name, monsters, items):
+  def __init__(self, name):
     self.name = name
-    self.monsters = monsters
-    self.items = items
+    self.monsters = []
+    self.items = []
+
+  def add_monster(self, monster):
+    self.monsters.append(monster)
+
+  def add_item(self, item):
+    self.items.append(item)
+
+class Forest(Location):
+  def __init__(self):
+    super().__init__("Forêt")
+    self.add_monster(monster("Loup", [Attack("Morsure", 1, 1, 1)], 1, 10, None))
+
+class Castle(Location):
+  def __init__(self):
+    super().__init__("Château")
+    self.add_monster(monster("Garde", [Attack("Coup d'épée", 5, 5, 5)], 5, 20, None))
+    self.add_item(Weapon("Épée", Attack("Coup d'épée", 5, 20, 0)))
+
+class House(Location):
+  def __init__(self):
+    super().__init__("Maison")
+    self.add_item(Potion("Potion de vie puissante", "Soin", 25))
+    self.add_item(Potion("Potion de vie puissante", "Soin", 25))
+    self.add_item(Potion("Potion de défense", "Def", 10))
+    self.add_item(Weapon("Dague", Attack("Coup de dague", 3, 10, 0)))
 
 class PlayerRPG(Entity):
   def __init__(self,Role):
@@ -88,7 +113,7 @@ class PlayerRPG(Entity):
 
   def move(self, new_location):
     self.location = new_location
-    print(f"Vous vous déplacez vers {new_location.name}")
+    print(f"Vous vous déplacez vers {new_location.name}.")
 
 class monster(Entity) :
   def __init__(self, name, atks, Def, hp, loot):
@@ -100,9 +125,9 @@ class monster(Entity) :
     atk = self.atks[r]
     return atk.calculate_damage()
 
-
 def Fight(Player,Monster):
   while Player.hp > 0 and Monster.hp > 0:
+    print(f"Le monstre a {Monster.hp} points de vie.")
     choose = input("Atk or item")
     if choose == "Atk":
       Monster.hp -= Player.attack()
@@ -111,32 +136,36 @@ def Fight(Player,Monster):
 
     Player.hp -= Monster.attack()
 
-#Créer
-forest = Location("Forêt", [monster("Loup", [Attack("Morsure", 1, 1, 1)], 1, 10, None)], [])
-castle = Location("Château", [monster("Garde", [Attack("Coup d'épée", 5, 5, 5)], 5, 20, None)], [Weapon("Épée", Attack("Coup d'épée", 5, 20, 0))])
+  #Réinitialise la vie du monstre après le combat
+  if Monster.hp <= 0:
+    print(f"Le {Monster.name} est mort.")
+    Monster.hp = 25
 
-Pl = PlayerRPG("Warrior")
+def jeu(Player):
+  forest = Forest()
+  castle = Castle()
+  house = House()
+  locations = [forest, castle, house]
 
-def jeu(Player, locations):
   while Player.hp > 0:
-    # Choisir une location au hasard
     location_index = randint(0, len(locations) - 1)
     location = locations[location_index]
-
-    # Déplacer le joueur vers la nouvelle location
     Player.move(location)
-
-    # Si la location a des monstres, lancer un combat
     if location.monsters:
       monster_index = randint(0, len(location.monsters) - 1)
       monster = location.monsters[monster_index]
       print(f"Un {monster.name} vous attaque !")
       Fight(Player, monster)
-
-    # Si le joueur a survécu au combat, continuer le jeu
+    elif location.items:
+      item_index = randint(0, len(location.items) - 1)
+      item = location.items[item_index]
+      Player.inventory.append(item)
+      print(f"Vous avez trouvé {item.name} et l'avez ajouté à votre inventaire.")
     if Player.hp > 0:
-      print("Vous avez survécu au combat. Continuons le jeu...")
+      print("Vous avez survécu à cette zone. Le jeu continue...")
     else:
-      print("Vous êtes mort. Le jeu est terminé.")
+      print("Vous êtes mort. Vous avez perdu.")
 
-jeu(Pl,[forest, castle])
+Pl = PlayerRPG("Warrior")
+
+jeu(Pl)
